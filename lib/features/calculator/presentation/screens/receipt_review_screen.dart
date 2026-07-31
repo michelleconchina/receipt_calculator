@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:receipt_calculator/core/constants/app_dimension.dart';
 
 import '../../../../core/constants/route_paths.dart';
 
@@ -9,10 +10,11 @@ class ReceiptReviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Review Items'),
-      ),
+      appBar: AppBar(title: const Text('Review Items')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: const [
@@ -30,7 +32,7 @@ class ReceiptReviewScreen extends StatelessWidget {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppDimension.paddingS),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -42,16 +44,40 @@ class ReceiptReviewScreen extends StatelessWidget {
                     'Selected total',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  Text(
-                    r'$4.99',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
+                  Text(r'$4.99', style: Theme.of(context).textTheme.titleLarge),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppDimension.spaceMedium),
               OutlinedButton(
-                onPressed: () => context.go(kHomeRoute),
-                child: const Text('Start Over'),
+                onPressed: () => context.push(kPreviewRoute),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 56),
+                  side: BorderSide(color: colorScheme.primary, width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      AppDimension.borderRadiusNormal,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.image_rounded,
+                      size: AppDimension.iconSizeSmall,
+                      color: colorScheme.primary,
+                    ),
+                    // const SizedBox(width: 12),
+                    const SizedBox(width: AppDimension.spaceMedium),
+                    Text(
+                      'Retake',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

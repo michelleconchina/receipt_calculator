@@ -24,8 +24,8 @@ class HomeScreen extends StatelessWidget {
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,
                     colors: [
-                      colorScheme.primary.withOpacity(0.08),
-                      colorScheme.primary.withOpacity(0.03),
+                      colorScheme.primary.withValues(alpha: .08),
+                      colorScheme.primary.withValues(alpha: 0.03),
                     ],
                   ),
                 ),
@@ -45,7 +45,6 @@ class HomeScreen extends StatelessWidget {
                         color: colorScheme.primary,
                       ),
                     ),
-                    const SizedBox(height: 12),
 
                     // Subtitle
                     Text(
@@ -57,7 +56,7 @@ class HomeScreen extends StatelessWidget {
                       maxLines: 2,
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
                     // Illustration placeholder (receipt + calculator)
                     _HeroIllustration(colorScheme: colorScheme),
@@ -69,7 +68,7 @@ class HomeScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
-                  vertical: 32,
+                  vertical: 24,
                 ),
                 child: Column(
                   children: [
@@ -87,7 +86,7 @@ class HomeScreen extends StatelessWidget {
                         color: colorScheme.primary,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
 
                     // Headline
                     Text(
@@ -109,7 +108,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 12),
 
                     // CTA Buttons
                     FilledButton(
@@ -182,7 +181,7 @@ class HomeScreen extends StatelessWidget {
       ),
 
       // Bottom navigation
-      bottomNavigationBar: _BottomNavBar(colorScheme: colorScheme),
+      // bottomNavigationBar: _BottomNavBar(colorScheme: colorScheme),
     );
   }
 }
@@ -206,7 +205,7 @@ class _HeroIllustration extends StatelessWidget {
             height: 200,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: colorScheme.primary.withOpacity(0.05),
+              color: colorScheme.primary.withValues(alpha: 0.05),
             ),
           ),
         ),
@@ -222,7 +221,7 @@ class _HeroIllustration extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -233,9 +232,9 @@ class _HeroIllustration extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Receipt header
-                Text(
+                const Text(
                   'SUPERMARKET',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Colors.black87,
@@ -280,12 +279,12 @@ class _HeroIllustration extends StatelessWidget {
                 const SizedBox(height: 8),
 
                 // Total
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'TOTAL',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: Colors.black87,
@@ -293,7 +292,7 @@ class _HeroIllustration extends StatelessWidget {
                     ),
                     Text(
                       '306.00',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: Colors.black87,
@@ -318,13 +317,17 @@ class _HeroIllustration extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: colorScheme.primary.withOpacity(0.4),
+                  color: colorScheme.primary.withValues(alpha: .4),
                   blurRadius: 24,
                   offset: const Offset(0, 12),
                 ),
               ],
             ),
-            child: Icon(Icons.calculate_rounded, size: 48, color: Colors.white),
+            child: const Icon(
+              Icons.calculate_rounded,
+              size: 48,
+              color: Colors.white,
+            ),
           ),
         ),
       ],
@@ -332,55 +335,67 @@ class _HeroIllustration extends StatelessWidget {
   }
 }
 
-/// Bottom navigation bar
-class _BottomNavBar extends StatefulWidget {
-  final ColorScheme colorScheme;
+// class _BottomNavBar extends StatelessWidget {
+//   final ColorScheme colorScheme;
 
-  const _BottomNavBar({required this.colorScheme});
+//   const _BottomNavBar({required this.colorScheme});
 
-  @override
-  State<_BottomNavBar> createState() => _BottomNavBarState();
-}
+//   int _calculateSelectedIndex(BuildContext context) {
+//     final String location = GoRouterState.of(context).uri.path;
+//     if (location.startsWith(kReceiptHistoryRoute)) return 0;
+//     if (location.startsWith(kHomeRoute)) return 1;
+//     if (location.startsWith(kReceiptSettingRoute)) return 2;
+//     return 1; // Default to Home
+//   }
 
-class _BottomNavBarState extends State<_BottomNavBar> {
-  int _selectedIndex = 0;
+//   void _onItemTapped(int index, BuildContext context) {
+//     switch (index) {
+//       case 0:
+//         context.go(kHomeRoute);
+//         break;
+//       case 1:
+//         context.go(kHomeRoute);
+//         break;
+//       case 2:
+//         context.go(kHomeRoute);
+//         break;
+//     }
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: widget.colorScheme.outlineVariant, width: 0.5),
-        ),
-      ),
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() => _selectedIndex = index);
-          // Handle navigation here
-        },
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        backgroundColor: widget.colorScheme.surface,
-        selectedItemColor: widget.colorScheme.primary,
-        unselectedItemColor: widget.colorScheme.onSurfaceVariant,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_rounded),
-            label: 'History',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_rounded),
-            label: 'Settings',
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     final selectedIndex = _calculateSelectedIndex(context);
+
+//     return Container(
+//       decoration: BoxDecoration(
+//         border: Border(
+//           top: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
+//         ),
+//       ),
+//       child: NavigationBar(
+//         selectedIndex: selectedIndex,
+//         onDestinationSelected: (index) => _onItemTapped(index, context),
+//         elevation: 0,
+//         backgroundColor: colorScheme.surface,
+//         indicatorColor: colorScheme.primaryContainer,
+//         destinations: const [
+//           NavigationDestination(
+//             icon: Icon(Icons.receipt_long_outlined),
+//             selectedIcon: Icon(Icons.receipt_long_rounded),
+//             label: 'History',
+//           ),
+//           NavigationDestination(
+//             icon: Icon(Icons.home_outlined),
+//             selectedIcon: Icon(Icons.home_rounded),
+//             label: 'Home',
+//           ),
+//           NavigationDestination(
+//             icon: Icon(Icons.settings_outlined),
+//             selectedIcon: Icon(Icons.settings_rounded),
+//             label: 'Settings',
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
