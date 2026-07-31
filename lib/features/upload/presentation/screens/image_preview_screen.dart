@@ -10,8 +10,15 @@ class ImagePreviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Preview')),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: const Icon(Icons.close_rounded),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(AppDimension.spaceNormal),
         child: Column(
@@ -22,7 +29,7 @@ class ImagePreviewScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(
-                    AppDimension.borderRadius,
+                    AppDimension.borderRadiusNormal,
                   ),
                   border: Border.all(
                     color: Theme.of(context).colorScheme.outlineVariant,
@@ -39,14 +46,68 @@ class ImagePreviewScreen extends StatelessWidget {
             ),
             const SizedBox(height: AppDimension.spaceNormal),
             OutlinedButton(
-              onPressed: () => context.go(kHomeRoute),
-              child: const Text('Retake'),
+              onPressed: () => context.push(kPreviewRoute),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 56),
+                side: BorderSide(color: colorScheme.primary, width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    AppDimension.borderRadiusNormal,
+                  ),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.image_rounded,
+                    size: AppDimension.iconSizeSmall,
+                    color: colorScheme.primary,
+                  ),
+                  // const SizedBox(width: 12),
+                  const SizedBox(width: AppDimension.spaceMedium),
+                  Text(
+                    'Retake',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: AppDimension.spaceSmall),
             FilledButton(
-              onPressed: () => context.push(kOcrLoadingRoute),
-              child: const Text('Continue'),
+              onPressed: () => context.push(kReceiptReviewRoute),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(double.infinity, 56),
+                backgroundColor: colorScheme.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    AppDimension.borderRadiusNormal,
+                  ),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.camera_alt_rounded,
+                    size: AppDimension.iconSizeSmall,
+                    color: colorScheme.onPrimary,
+                  ),
+                  const SizedBox(width: AppDimension.spaceMedium),
+                  Text(
+                    'Continue',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onPrimary,
+                    ),
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(height: AppDimension.spaceLarge),
           ],
         ),
       ),

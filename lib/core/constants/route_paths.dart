@@ -12,3 +12,6 @@ const String kOcrLoadingRoute = '/ocr-loading';
 
 /// Receipt review and item selection screen.
 const String kReceiptReviewRoute = '/receipt-review';
+
+const String kReceiptHistoryRoute = '/receipt-review';
+const String kReceiptSettingRoute = '/receipt-review';
