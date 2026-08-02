@@ -1,6 +1,6 @@
 import '../entities/receipt.dart';
-import '../repositories/ocr_service_interface.dart';
-import '../repositories/receipt_parser_interface.dart';
+import '../../data/repositories/ocr_service_interface.dart';
+import '../../data/repositories/receipt_parser_interface.dart';
 
 /// Use case: Extract text from image → Parse into Receipt.
 class ParseReceiptUseCase {

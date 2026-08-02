@@ -1,114 +1,59 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:receipt_calculator/core/constants/app_dimension.dart';
 
 import '../../../../core/constants/route_paths.dart';
+import '../../../../core/di/injection.dart';
+import '../../../receipt/presentation/bloc/receipt_bloc.dart';
+import '../bloc/upload_bloc.dart';
 
-/// Preview screen shown after an image is selected.
 class ImagePreviewScreen extends StatelessWidget {
   const ImagePreviewScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(Icons.close_rounded),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(AppDimension.spaceNormal),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(
-                    AppDimension.borderRadiusNormal,
-                  ),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.image_outlined,
-                    size: AppDimension.iconSize,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppDimension.spaceNormal),
-            OutlinedButton(
-              onPressed: () => context.push(kPreviewRoute),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56),
-                side: BorderSide(color: colorScheme.primary, width: 1.5),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    AppDimension.borderRadiusNormal,
-                  ),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+    return BlocListener<UploadBloc, UploadState>(
+      listener: (context, state) {
+        if (state is UploadSuccess) {
+          // Trigger OCR
+          getIt<ReceiptBloc>().add(
+            ParseReceiptEvent(imagePath: state.imagePath),
+          );
+          context.push(kOcrLoadingRoute);
+        } else if (state is UploadFailure) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.error)));
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Preview Receipt')),
+        body: BlocBuilder<UploadBloc, UploadState>(
+          builder: (context, state) {
+            if (state is UploadSuccess) {
+              return Column(
                 children: [
-                  Icon(
-                    Icons.image_rounded,
-                    size: AppDimension.iconSizeSmall,
-                    color: colorScheme.primary,
+                  Expanded(
+                    child: Image.file(File(state.imagePath), fit: BoxFit.cover),
                   ),
-                  // const SizedBox(width: 12),
-                  const SizedBox(width: AppDimension.spaceMedium),
-                  Text(
-                    'Retake',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.primary,
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: FilledButton(
+                      onPressed: () {
+                        context.read<UploadBloc>().add(
+                          CompressImageEvent(imagePath: state.imagePath),
+                        );
+                      },
+                      child: const Text('Scan Receipt'),
                     ),
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: AppDimension.spaceSmall),
-            FilledButton(
-              onPressed: () => context.push(kReceiptReviewRoute),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56),
-                backgroundColor: colorScheme.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    AppDimension.borderRadiusNormal,
-                  ),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.camera_alt_rounded,
-                    size: AppDimension.iconSizeSmall,
-                    color: colorScheme.onPrimary,
-                  ),
-                  const SizedBox(width: AppDimension.spaceMedium),
-                  Text(
-                    'Continue',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppDimension.spaceLarge),
-          ],
+              );
+            }
+            return const Center(child: Text('No image selected'));
+          },
         ),
       ),
     );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:receipt_calculator/features/upload/presentation/bloc/upload_bloc.dart';
 
 import '../../../../core/constants/route_paths.dart';
 
@@ -108,68 +110,101 @@ class HomeScreen extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 24),
 
-                    // CTA Buttons
-                    FilledButton(
-                      onPressed: () => context.push(kPreviewRoute),
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 56),
-                        backgroundColor: colorScheme.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.camera_alt_rounded,
-                            size: 20,
-                            color: colorScheme.onPrimary,
+                    // ✅ CAMERA BUTTON — Now triggers UploadBloc
+                    BlocListener<UploadBloc, UploadState>(
+                      listener: (context, state) {
+                        if (state is UploadSuccess) {
+                          context.push(kPreviewRoute);
+                        } else if (state is UploadFailure) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error: ${state.error}')),
+                          );
+                        }
+                      },
+                      child: FilledButton(
+                        onPressed: () {
+                          // ✅ Trigger camera capture via UploadBloc
+                          context.read<UploadBloc>().add(
+                            const CaptureFromCameraEvent(),
+                          );
+                        },
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 56),
+                          backgroundColor: colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Take Photo',
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.camera_alt_rounded,
+                              size: 20,
                               color: colorScheme.onPrimary,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 12),
+                            Text(
+                              'Take Photo',
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
 
-                    OutlinedButton(
-                      onPressed: () => context.push(kPreviewRoute),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 56),
-                        side: BorderSide(
-                          color: colorScheme.primary,
-                          width: 1.5,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.image_rounded,
-                            size: 20,
+                    // ✅ GALLERY BUTTON — Now triggers UploadBloc
+                    BlocListener<UploadBloc, UploadState>(
+                      listener: (context, state) {
+                        if (state is UploadSuccess) {
+                          context.push(kPreviewRoute);
+                        } else if (state is UploadFailure) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error: ${state.error}')),
+                          );
+                        }
+                      },
+                      child: OutlinedButton(
+                        onPressed: () {
+                          // ✅ Trigger gallery pick via UploadBloc
+                          context.read<UploadBloc>().add(
+                            const PickFromGalleryEvent(),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 56),
+                          side: BorderSide(
                             color: colorScheme.primary,
+                            width: 1.5,
                           ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Choose from Gallery',
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.image_rounded,
+                              size: 20,
                               color: colorScheme.primary,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 12),
+                            Text(
+                              'Choose from Gallery',
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -179,9 +214,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-
-      // Bottom navigation
-      // bottomNavigationBar: _BottomNavBar(colorScheme: colorScheme),
     );
   }
 }
@@ -334,68 +366,3 @@ class _HeroIllustration extends StatelessWidget {
     );
   }
 }
-
-// class _BottomNavBar extends StatelessWidget {
-//   final ColorScheme colorScheme;
-
-//   const _BottomNavBar({required this.colorScheme});
-
-//   int _calculateSelectedIndex(BuildContext context) {
-//     final String location = GoRouterState.of(context).uri.path;
-//     if (location.startsWith(kReceiptHistoryRoute)) return 0;
-//     if (location.startsWith(kHomeRoute)) return 1;
-//     if (location.startsWith(kReceiptSettingRoute)) return 2;
-//     return 1; // Default to Home
-//   }
-
-//   void _onItemTapped(int index, BuildContext context) {
-//     switch (index) {
-//       case 0:
-//         context.go(kHomeRoute);
-//         break;
-//       case 1:
-//         context.go(kHomeRoute);
-//         break;
-//       case 2:
-//         context.go(kHomeRoute);
-//         break;
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final selectedIndex = _calculateSelectedIndex(context);
-
-//     return Container(
-//       decoration: BoxDecoration(
-//         border: Border(
-//           top: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
-//         ),
-//       ),
-//       child: NavigationBar(
-//         selectedIndex: selectedIndex,
-//         onDestinationSelected: (index) => _onItemTapped(index, context),
-//         elevation: 0,
-//         backgroundColor: colorScheme.surface,
-//         indicatorColor: colorScheme.primaryContainer,
-//         destinations: const [
-//           NavigationDestination(
-//             icon: Icon(Icons.receipt_long_outlined),
-//             selectedIcon: Icon(Icons.receipt_long_rounded),
-//             label: 'History',
-//           ),
-//           NavigationDestination(
-//             icon: Icon(Icons.home_outlined),
-//             selectedIcon: Icon(Icons.home_rounded),
-//             label: 'Home',
-//           ),
-//           NavigationDestination(
-//             icon: Icon(Icons.settings_outlined),
-//             selectedIcon: Icon(Icons.settings_rounded),
-//             label: 'Settings',
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

@@ -1,4 +1,4 @@
-import '../entities/receipt_test.dart';
+import 'package:receipt_calculator/features/receipt/domain/entities/receipt.dart';
 
 /// Contract for Receipt data storage (local or cloud).
 abstract class ReceiptRepositoryInterface {

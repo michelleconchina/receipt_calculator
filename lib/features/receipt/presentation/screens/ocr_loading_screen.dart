@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/route_paths.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
-
-/// Rotating status messages shown while OCR runs.
-const List<String> _kOcrStatusMessages = [
-  'Reading receipt…',
-  'Detecting text…',
-  'Extracting line items…',
-];
+import '../../../calculator/presentation/bloc/calculator_bloc.dart';
+import '../bloc/receipt_bloc.dart';
 
 /// Loading screen displayed during OCR text extraction.
 class OcrLoadingScreen extends StatefulWidget {
@@ -20,38 +17,47 @@ class OcrLoadingScreen extends StatefulWidget {
 }
 
 class _OcrLoadingScreenState extends State<OcrLoadingScreen> {
-  int _messageIndex = 0;
-
   @override
   void initState() {
     super.initState();
-    _startDemoFlow();
+    // Listen to ReceiptBloc for completion
+    _listenToReceiptParsing();
   }
 
-  Future<void> _startDemoFlow() async {
-    for (var i = 0; i < _kOcrStatusMessages.length; i++) {
-      if (!mounted) {
-        return;
+  void _listenToReceiptParsing() {
+    context.read<ReceiptBloc>().stream.listen((state) {
+      if (!mounted) return;
+
+      if (state is ReceiptSuccess) {
+        // Load into calculator and navigate
+        getIt<CalculatorBloc>().add(LoadReceiptEvent(receipt: state.receipt));
+        context.go(kReceiptReviewRoute);
+      } else if (state is ReceiptFailure) {
+        // Show error
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(state.error)));
+        context.pop();
       }
-      setState(() => _messageIndex = i);
-      await Future<void>.delayed(const Duration(milliseconds: 900));
-    }
-
-    if (!mounted) {
-      return;
-    }
-
-    await context.push(kReceiptReviewRoute);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Scanning'),
-      ),
-      body: AppLoadingIndicator(
-        message: _kOcrStatusMessages[_messageIndex],
+      appBar: AppBar(title: const Text('Scanning Receipt')),
+      body: BlocBuilder<ReceiptBloc, ReceiptState>(
+        builder: (context, state) {
+          String message = 'Reading receipt…';
+
+          if (state is ReceiptLoading) {
+            message = 'Extracting items…';
+          } else if (state is ReceiptFailure) {
+            message = 'Error: ${state.error}';
+          }
+
+          return AppLoadingIndicator(message: message);
+        },
       ),
     );
   }

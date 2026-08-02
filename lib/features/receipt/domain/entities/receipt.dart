@@ -11,7 +11,7 @@ class Receipt extends Equatable {
   final List<ReceiptItem> items;
   final DateTime scannedAt;
   final String? storeName;
-  final double ocr_confidence; // How confident was the OCR?
+  final double ocrConfidence; // How confident was the OCR?
 
   Receipt({
     String? id,
@@ -19,7 +19,7 @@ class Receipt extends Equatable {
     required this.items,
     DateTime? scannedAt,
     this.storeName,
-    this.ocr_confidence = 1.0,
+    this.ocrConfidence = 1.0,
   }) : id = id ?? Uuid().v4(),
        scannedAt = scannedAt ?? DateTime.now();
 
@@ -56,7 +56,7 @@ class Receipt extends Equatable {
     List<ReceiptItem>? items,
     DateTime? scannedAt,
     String? storeName,
-    double? ocr_confidence,
+    double? ocrConfidence,
   }) {
     return Receipt(
       id: id ?? this.id,
@@ -64,7 +64,7 @@ class Receipt extends Equatable {
       items: items ?? this.items,
       scannedAt: scannedAt ?? this.scannedAt,
       storeName: storeName ?? this.storeName,
-      ocr_confidence: ocr_confidence ?? this.ocr_confidence,
+      ocrConfidence: ocrConfidence ?? this.ocrConfidence,
     );
   }
 
@@ -92,6 +92,6 @@ class Receipt extends Equatable {
     items,
     scannedAt,
     storeName,
-    ocr_confidence,
+    ocrConfidence,
   ];
 }

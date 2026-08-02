@@ -30,6 +30,8 @@
 	<string>Camera access is required to photograph receipts for item extraction.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library access is required to select receipt images for item extraction.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Select receipt images</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

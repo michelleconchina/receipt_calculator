@@ -1,6 +1,6 @@
 /// Static class containing business rules for receipt parsing.
 abstract final class ReceiptBusinessRules {
-  /// Words that indicate a line should be ignored (VAT, TOTAL, etc.)
+  /// More ignore keywords for receipts
   static const List<String> ignoreKeywords = [
     'TOTAL',
     'SUBTOTAL',
@@ -18,6 +18,19 @@ abstract final class ReceiptBusinessRules {
     'STORE',
     'ADDRESS',
     'PHONE',
+    'INVOICE',
+    'DISCOUNT',
+    'AMOUNT DUE',
+    'CASHIER',
+    'BUYER',
+    'NAME OF CUSTOMER',
+    'COMPANY',
+    'CARD NO',
+    'APPROVAL CODE',
+    'CREDIT',
+    'VAT Sale',
+    'VAT Exempt',
+    'VAT Zero Rated',
   ];
 
   /// Checks if a line should be ignored based on keywords.
