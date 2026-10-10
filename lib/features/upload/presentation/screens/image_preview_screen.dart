@@ -29,7 +29,12 @@ class ImagePreviewScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Preview Receipt')),
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () => context.pop(kHomeRoute),
+            icon: const Icon(Icons.close_rounded),
+          ),
+        ),
         body: BlocBuilder<UploadBloc, UploadState>(
           builder: (context, state) {
             if (state is UploadSuccess) {

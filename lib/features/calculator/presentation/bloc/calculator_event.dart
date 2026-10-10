@@ -8,28 +8,32 @@ abstract class CalculatorEvent extends Equatable {
 }
 
 class LoadReceiptEvent extends CalculatorEvent {
-  final Receipt receipt;
-
   const LoadReceiptEvent({required this.receipt});
+
+  final Receipt receipt;
 
   @override
   List<Object?> get props => [receipt];
 }
 
 class ToggleItemEvent extends CalculatorEvent {
-  final String itemId;
-
   const ToggleItemEvent({required this.itemId});
+
+  final String itemId;
 
   @override
   List<Object?> get props => [itemId];
 }
 
 class RemoveItemEvent extends CalculatorEvent {
-  final String itemId;
-
   const RemoveItemEvent({required this.itemId});
+
+  final String itemId;
 
   @override
   List<Object?> get props => [itemId];
+}
+
+class ClearAllItemsEvent extends CalculatorEvent {
+  const ClearAllItemsEvent();
 }

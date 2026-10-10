@@ -6,13 +6,6 @@ import 'receipt_item.dart';
 
 /// Represents a complete receipt with extracted items.
 class Receipt extends Equatable {
-  final String id;
-  final String sourceImagePath; // Where the image came from
-  final List<ReceiptItem> items;
-  final DateTime scannedAt;
-  final String? storeName;
-  final double ocrConfidence; // How confident was the OCR?
-
   Receipt({
     String? id,
     required this.sourceImagePath,
@@ -20,15 +13,26 @@ class Receipt extends Equatable {
     DateTime? scannedAt,
     this.storeName,
     this.ocrConfidence = 1.0,
-  }) : id = id ?? Uuid().v4(),
+    this.serviceCharge = const Money(amount: 0),
+    this.vatAmount = const Money(amount: 0),
+  }) : id = id ?? const Uuid().v4(),
        scannedAt = scannedAt ?? DateTime.now();
+
+  final String id;
+  final String sourceImagePath; // Where the image came from
+  final List<ReceiptItem> items;
+  final DateTime scannedAt;
+  final String? storeName;
+  final double ocrConfidence; // How confident was the OCR?
+  final Money serviceCharge; // Whole-receipt service charge, added on top
+  final Money vatAmount; // Informational only; PH prices already include VAT
 
   /// Gets all selected items.
   List<ReceiptItem> get selectedItems =>
       items.where((item) => item.isSelected).toList();
 
-  /// Calculates the total of all selected items.
-  Money get selectedTotal {
+  /// Calculates the total of all selected items, excluding service charge.
+  Money get selectedItemsSubtotal {
     if (selectedItems.isEmpty) {
       return const Money(amount: 0, currency: 'PHP');
     }
@@ -37,6 +41,23 @@ class Receipt extends Equatable {
         .reduce((a, b) => a.add(b))
         .round();
   }
+
+  /// The selected items' proportional share of the service charge.
+  Money get selectedServiceCharge {
+    final itemsTotal = allItemsTotal.amount;
+    if (serviceCharge.isZero || itemsTotal == 0) {
+      return Money(amount: 0, currency: serviceCharge.currency);
+    }
+    return Money(
+      amount: serviceCharge.amount * selectedItemsSubtotal.amount / itemsTotal,
+      currency: serviceCharge.currency,
+    ).round();
+  }
+
+  /// Calculates what the selected items cost, including their share of the
+  /// service charge. VAT is not added: it is already included in item prices.
+  Money get selectedTotal =>
+      selectedItemsSubtotal.add(selectedServiceCharge).round();
 
   /// Calculates the total of all items (regardless of selection).
   Money get allItemsTotal {
@@ -57,6 +78,8 @@ class Receipt extends Equatable {
     DateTime? scannedAt,
     String? storeName,
     double? ocrConfidence,
+    Money? serviceCharge,
+    Money? vatAmount,
   }) {
     return Receipt(
       id: id ?? this.id,
@@ -65,6 +88,8 @@ class Receipt extends Equatable {
       scannedAt: scannedAt ?? this.scannedAt,
       storeName: storeName ?? this.storeName,
       ocrConfidence: ocrConfidence ?? this.ocrConfidence,
+      serviceCharge: serviceCharge ?? this.serviceCharge,
+      vatAmount: vatAmount ?? this.vatAmount,
     );
   }
 
@@ -82,6 +107,11 @@ class Receipt extends Equatable {
     return copyWith(items: items.where((item) => item.id != itemId).toList());
   }
 
+  /// Removes all items.
+  Receipt clearItems() {
+    return copyWith(items: const []);
+  }
+
   /// Checks if all items are valid.
   bool isValid() => items.isNotEmpty && items.every((item) => item.isValid());
 
@@ -93,5 +123,7 @@ class Receipt extends Equatable {
     scannedAt,
     storeName,
     ocrConfidence,
+    serviceCharge,
+    vatAmount,
   ];
 }

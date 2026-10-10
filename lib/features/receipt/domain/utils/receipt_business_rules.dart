@@ -33,6 +33,58 @@ abstract final class ReceiptBusinessRules {
     'VAT Zero Rated',
   ];
 
+  /// Labels for a service charge line, listed separately from VAT.
+  static const List<String> serviceChargeKeywords = [
+    'SERVICE CHARGE',
+    'SERVICE CHG',
+    'SVC CHARGE',
+    'SVC CHG',
+  ];
+
+  /// Labels for the VAT amount line (12% VAT, already included in prices).
+  static const List<String> vatAmountKeywords = [
+    'VAT AMOUNT',
+    '12% VAT',
+    'VAT 12%',
+  ];
+
+  /// Finds the amount for the first line (from [start]) containing one of
+  /// [keywords]. Reads the trailing amount on the same line, or a bare amount
+  /// on the next line when OCR split the label and amount into columns.
+  /// Amounts require 2 decimals so rates like "10%" are not read as amounts.
+  static ({double amount, int lineIndex})? findLabeledAmount(
+    List<String> lines,
+    List<String> keywords, {
+    int start = 0,
+  }) {
+    final trailingAmount = RegExp(r'P?([\d,]+\.\d{2})\s*$');
+    final bareAmount = RegExp(r'^P?([\d,]+\.\d{2})$');
+
+    for (var i = start; i < lines.length; i++) {
+      final upperLine = lines[i].toUpperCase();
+      if (!keywords.any(upperLine.contains)) continue;
+
+      final sameLine = trailingAmount.firstMatch(lines[i]);
+      if (sameLine != null) {
+        final amount = _parseAmount(sameLine.group(1)!);
+        if (amount != null) return (amount: amount, lineIndex: i);
+      }
+
+      if (i + 1 < lines.length) {
+        final nextLine = bareAmount.firstMatch(lines[i + 1].trim());
+        if (nextLine != null) {
+          final amount = _parseAmount(nextLine.group(1)!);
+          if (amount != null) return (amount: amount, lineIndex: i + 1);
+        }
+      }
+      return null;
+    }
+    return null;
+  }
+
+  static double? _parseAmount(String raw) =>
+      double.tryParse(raw.replaceAll(',', ''));
+
   /// Checks if a line should be ignored based on keywords.
   static bool shouldIgnoreLine(String line) {
     final upperLine = line.toUpperCase();
