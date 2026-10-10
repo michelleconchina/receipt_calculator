@@ -68,7 +68,7 @@ class ReceiptReviewScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     FilledButton(
-                      onPressed: () => {context.push(kPreviewRoute)},
+                      onPressed: () => {context.push(kHomeRoute)},
                       child: const Text('Confirm Total'),
                     ),
                   ],
