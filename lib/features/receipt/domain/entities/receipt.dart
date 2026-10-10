@@ -6,13 +6,6 @@ import 'receipt_item.dart';
 
 /// Represents a complete receipt with extracted items.
 class Receipt extends Equatable {
-  final String id;
-  final String sourceImagePath; // Where the image came from
-  final List<ReceiptItem> items;
-  final DateTime scannedAt;
-  final String? storeName;
-  final double ocrConfidence; // How confident was the OCR?
-
   Receipt({
     String? id,
     required this.sourceImagePath,
@@ -20,8 +13,15 @@ class Receipt extends Equatable {
     DateTime? scannedAt,
     this.storeName,
     this.ocrConfidence = 1.0,
-  }) : id = id ?? Uuid().v4(),
+  }) : id = id ?? const Uuid().v4(),
        scannedAt = scannedAt ?? DateTime.now();
+
+  final String id;
+  final String sourceImagePath; // Where the image came from
+  final List<ReceiptItem> items;
+  final DateTime scannedAt;
+  final String? storeName;
+  final double ocrConfidence; // How confident was the OCR?
 
   /// Gets all selected items.
   List<ReceiptItem> get selectedItems =>
@@ -80,6 +80,11 @@ class Receipt extends Equatable {
   /// Removes an item by ID.
   Receipt removeItem(String itemId) {
     return copyWith(items: items.where((item) => item.id != itemId).toList());
+  }
+
+  /// Removes all items.
+  Receipt clearItems() {
+    return copyWith(items: const []);
   }
 
   /// Checks if all items are valid.

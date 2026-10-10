@@ -11,9 +11,6 @@ part 'calculator_state.dart';
 
 /// BLoC for item selection and total calculation.
 class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
-  final CalculateReceiptTotalUseCase _calculateTotal;
-  final ValidateReceiptUseCase _validateReceipt;
-
   CalculatorBloc({
     required CalculateReceiptTotalUseCase calculateTotal,
     required ValidateReceiptUseCase validateReceipt,
@@ -23,7 +20,11 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     on<LoadReceiptEvent>(_onLoadReceipt);
     on<ToggleItemEvent>(_onToggleItem);
     on<RemoveItemEvent>(_onRemoveItem);
+    on<ClearAllItemsEvent>(_onClearAllItems);
   }
+
+  final CalculateReceiptTotalUseCase _calculateTotal;
+  final ValidateReceiptUseCase _validateReceipt;
 
   /// Load receipt into calculator.
   Future<void> _onLoadReceipt(
@@ -75,6 +76,26 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
 
     final currentState = state as CalculatorLoaded;
     final updatedReceipt = currentState.receipt.removeItem(event.itemId);
+    final total = _calculateTotal(updatedReceipt);
+
+    emit(
+      CalculatorLoaded(
+        receipt: updatedReceipt,
+        selectedTotal: total,
+        isValid: _validateReceipt(updatedReceipt),
+      ),
+    );
+  }
+
+  /// Remove all items from receipt.
+  Future<void> _onClearAllItems(
+    ClearAllItemsEvent event,
+    Emitter<CalculatorState> emit,
+  ) async {
+    if (state is! CalculatorLoaded) return;
+
+    final currentState = state as CalculatorLoaded;
+    final updatedReceipt = currentState.receipt.clearItems();
     final total = _calculateTotal(updatedReceipt);
 
     emit(

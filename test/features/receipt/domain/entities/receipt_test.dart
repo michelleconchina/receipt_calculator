@@ -50,5 +50,18 @@ void main() {
         true,
       );
     });
+
+    test('clearItems removes all items', () {
+      final receipt = Receipt(
+        sourceImagePath: '/test.jpg',
+        items: [item1, item2],
+      );
+
+      final cleared = receipt.clearItems();
+
+      expect(cleared.items, isEmpty);
+      expect(cleared.selectedTotal.amount, 0);
+      expect(cleared.id, receipt.id);
+    });
   });
 }
