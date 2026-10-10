@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:receipt_calculator/core/constants/route_paths.dart';
+import '../../../receipt/domain/entities/money.dart';
 import '../../../receipt/domain/entities/receipt_item.dart';
 import '../bloc/calculator_bloc.dart';
 
@@ -73,15 +74,28 @@ class ReceiptReviewScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Total:'),
-                        Text(
-                          '${total.currency} ${total.amount.toStringAsFixed(2)}',
-                          style: Theme.of(context).textTheme.headlineSmall,
+                    if (!receipt.serviceCharge.isZero ||
+                        !receipt.vatAmount.isZero) ...[
+                      _AmountRow(
+                        label: 'Items',
+                        amount: receipt.selectedItemsSubtotal,
+                      ),
+                      if (!receipt.serviceCharge.isZero)
+                        _AmountRow(
+                          label: 'Service charge',
+                          amount: receipt.selectedServiceCharge,
                         ),
-                      ],
+                      if (!receipt.vatAmount.isZero)
+                        _AmountRow(
+                          label: 'VAT (included)',
+                          amount: receipt.vatAmount,
+                        ),
+                      const SizedBox(height: 8),
+                    ],
+                    _AmountRow(
+                      label: 'Total:',
+                      amount: total,
+                      style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 16),
                     FilledButton(
@@ -124,6 +138,28 @@ class ReceiptReviewScreen extends StatelessWidget {
     if (confirmed ?? false) {
       bloc.add(const ClearAllItemsEvent());
     }
+  }
+}
+
+class _AmountRow extends StatelessWidget {
+  const _AmountRow({required this.label, required this.amount, this.style});
+
+  final String label;
+  final Money amount;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label),
+        Text(
+          '${amount.currency} ${amount.amount.toStringAsFixed(2)}',
+          style: style,
+        ),
+      ],
+    );
   }
 }
 

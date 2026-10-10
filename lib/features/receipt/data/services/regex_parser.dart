@@ -11,7 +11,7 @@ class RegexReceiptParser implements ReceiptParserInterface {
     required String sourceImagePath,
   }) async {
     // Clean text
-    var lines = rawText
+    final lines = rawText
         .split('\n')
         .map((line) => line.replaceAll('{', '').replaceAll('}', '').trim())
         .where((line) => line.isNotEmpty)
@@ -31,6 +31,30 @@ class RegexReceiptParser implements ReceiptParserInterface {
         break;
       }
     }
+
+    // Extract service charge and VAT amount (AFTER subtotal)
+    final serviceCharge = ReceiptBusinessRules.findLabeledAmount(
+      lines,
+      ReceiptBusinessRules.serviceChargeKeywords,
+      start: subtotalIndex,
+    );
+    final vatAmount = ReceiptBusinessRules.findLabeledAmount(
+      lines,
+      ReceiptBusinessRules.vatAmountKeywords,
+      start: subtotalIndex,
+    );
+    if (serviceCharge != null) {
+      print('🧾 Service charge: P${serviceCharge.amount}');
+    }
+    if (vatAmount != null) {
+      print('🧾 VAT: P${vatAmount.amount}');
+    }
+
+    // Lines holding those amounts must not be zipped onto items
+    final chargeLineIndexes = {
+      if (serviceCharge != null) serviceCharge.lineIndex,
+      if (vatAmount != null) vatAmount.lineIndex,
+    };
 
     // Extract item lines (quantity + name: "1 ITEM NAME")
     final itemLines = <String>[];
@@ -56,6 +80,7 @@ class RegexReceiptParser implements ReceiptParserInterface {
 
       // Skip long/metadata lines
       if (line.length > 40) continue;
+      if (chargeLineIndexes.contains(i)) continue;
       if (ReceiptBusinessRules.shouldIgnoreLine(line)) continue;
 
       final match = priceRegex.firstMatch(line);
@@ -100,6 +125,8 @@ class RegexReceiptParser implements ReceiptParserInterface {
       sourceImagePath: sourceImagePath,
       items: items,
       ocrConfidence: _calculateConfidence(items.length),
+      serviceCharge: Money(amount: serviceCharge?.amount ?? 0),
+      vatAmount: Money(amount: vatAmount?.amount ?? 0),
     );
 
     return receipt;

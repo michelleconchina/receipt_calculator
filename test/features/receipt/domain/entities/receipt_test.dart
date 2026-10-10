@@ -63,5 +63,54 @@ void main() {
       expect(cleared.selectedTotal.amount, 0);
       expect(cleared.id, receipt.id);
     });
+
+    group('service charge', () {
+      final selected1 = item1;
+      final selected2 = item2.copyWith(isSelected: true);
+
+      test('adds a proportional share to selectedTotal', () {
+        final receipt = Receipt(
+          sourceImagePath: '/test.jpg',
+          items: [item1, item2],
+          serviceCharge: const Money(amount: 14.5),
+        );
+
+        expect(receipt.selectedItemsSubtotal.amount, 45);
+        expect(receipt.selectedServiceCharge.amount, 4.5); // 14.5 × 45/145
+        expect(receipt.selectedTotal.amount, 49.5);
+      });
+
+      test('adds the full charge when all items are selected', () {
+        final receipt = Receipt(
+          sourceImagePath: '/test.jpg',
+          items: [selected1, selected2],
+          serviceCharge: const Money(amount: 14.5),
+        );
+
+        expect(receipt.selectedTotal.amount, 159.5);
+      });
+
+      test('does not add VAT to selectedTotal', () {
+        final receipt = Receipt(
+          sourceImagePath: '/test.jpg',
+          items: [selected1, selected2],
+          vatAmount: const Money(amount: 15.54),
+        );
+
+        expect(receipt.selectedTotal.amount, 145);
+      });
+
+      test('is zero when nothing is selected or items are cleared', () {
+        final receipt = Receipt(
+          sourceImagePath: '/test.jpg',
+          items: [item1.toggle(), item2],
+          serviceCharge: const Money(amount: 14.5),
+        );
+
+        expect(receipt.selectedTotal.amount, 0);
+        expect(receipt.clearItems().selectedTotal.amount, 0);
+        expect(receipt.clearItems().serviceCharge.amount, 14.5);
+      });
+    });
   });
 }
